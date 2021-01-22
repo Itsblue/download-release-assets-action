@@ -1,5 +1,5 @@
-name: 'Fetch Github Release Asset'
-description: 'Downloads an asset from a Github release'
+name: 'Fetch Github Release Assets'
+description: 'Downloads multiple assets from a Github release'
 
 inputs:
   repo:
@@ -7,16 +7,20 @@ inputs:
     required: false
     default: ''
   version:
-    description: 'version of the release to download from'
+    description: 'Version of the release to download from'
     required: false
     default: 'latest'
   file:
-    description: 'name of the file in the release to download'
+    description: 'Pattern of the files in the release to download (regex)'
     required: true
   token:
-    description: 'optional Personal Access Token to access external repository'
+    description: 'Optional Personal Access Token to access external repository'
     required: false
     default: ''
+  path:
+    description: 'Output path for the downloaded files'
+    required: false
+    default: '.'
 
 runs:
   using: 'docker'
@@ -26,6 +30,7 @@ runs:
     - ${{ inputs.version }}
     - ${{ inputs.file }}
     - ${{ inputs.token }}
+    - ${{ inputs.path }}
 
 outputs:
   version:
