@@ -22,8 +22,8 @@ if ! [[ -z ${INPUT_TOKEN} ]]; then
 fi
 
 # Fetch all available assets from GitHub API
-API_URL="https://$TOKEN:@api.github.com/repos/$REPO"
-RELEASE_DATA=$(curl $API_URL/releases/${INPUT_VERSION})
+API_URL="https://api.github.com/repos/$REPO"
+RELEASE_DATA=$(curl -H "Authorization: token ${TOKEN}" $API_URL/releases/${INPUT_VERSION})
 ASSETS=$(echo $RELEASE_DATA |  jq --raw-output ".assets | map(select(.name | match(\"${INPUT_FILE}\")))[] |[ .id, .name ] | @csv" )
 TAG_VERSION=$(echo $RELEASE_DATA | jq -r ".tag_name" | sed -e "s/^v//" | sed -e "s/^v.//")
 echo "::set-output name=version::$TAG_VERSION"
