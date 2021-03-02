@@ -28,9 +28,9 @@ The version number of the release tag. Can be used to deploy for example to itch
 ## Example usage
 
 ```yaml
-uses: itsblue/fetch-gh-release-asset@master
+uses: Itsblue/download-release-assets-action@v1
 with:
-  repo: "dsaltares/godot-wild-jam-18"
+  repo: "linuxmuster/linuxmuster-linbo-gui"
   version: "latest"
   file: "*.zip"
   token: ${{ secrets.YOUR_TOKEN }}
