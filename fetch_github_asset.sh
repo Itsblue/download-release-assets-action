@@ -27,8 +27,8 @@ if ! [[ -z ${INPUT_TOKEN} ]]; then
 fi
 
 # Fetch all available assets from GitHub API
-API_URL="https://api.github.com/repos/$REPO"
-RELEASE_DATA=$(curl -H "Authorization: token ${TOKEN}" $API_URL/releases/${INPUT_VERSION})
+API_URL="https://api.github.com/repos/$REPO/releases/$INPUT_VERSION"
+RELEASE_DATA=$(curl -H "Authorization: token ${TOKEN}" $API_URL)
 
 MESSAGE=$(echo $RELEASE_DATA | jq -r ".message")
 
@@ -37,6 +37,7 @@ if [[ "$MESSAGE" != "null" ]]; then
   echo "Release data: $RELEASE_DATA"
   echo "-----"
   echo "repo: $REPO"
+  echo "url: $API_URL"
   echo "asset: $INPUT_FILE"
   echo "target: $TARGET"
   echo "version: $INPUT_VERSION"
@@ -52,6 +53,7 @@ if [[ -z "$ASSETS" ]]; then
   echo "Release data: $RELEASE_DATA"
   echo "-----"
   echo "repo: $REPO"
+  echo "url: $API_URL"
   echo "asset: $INPUT_FILE"
   echo "path: $INPUT_PATH"
   echo "version: $INPUT_VERSION"
@@ -70,6 +72,7 @@ while IFS= read -r ASSET; do
   -J \
   -L \
   -H "Accept: application/octet-stream" \
+  -H "Authorization: token ${TOKEN}" \
   "$API_URL/releases/assets/$ASSET_ID" \
   -o "$INPUT_PATH/$ASSET_NAME"
   
