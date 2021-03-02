@@ -5,6 +5,11 @@ if [[ -z "$INPUT_FILE" ]]; then
   exit 1
 fi
 
+if [[ -z "$INPUT_PATH" ]]; then
+  echo "Missing file output path in the action"
+  exit 1
+fi
+
 if [[ -z "$GITHUB_REPOSITORY" ]]; then
   echo "Missing GITHUB_REPOSITORY env variable"
   exit 1
@@ -24,13 +29,33 @@ fi
 # Fetch all available assets from GitHub API
 API_URL="https://api.github.com/repos/$REPO"
 RELEASE_DATA=$(curl -H "Authorization: token ${TOKEN}" $API_URL/releases/${INPUT_VERSION})
+
+MESSAGE=$(echo $RELEASE_DATA | jq -r ".message")
+
+if [[ "$MESSAGE" != "null" ]]; then
+  echo "[!] Error: $MESSAGE"
+  echo "Release data: $RELEASE_DATA"
+  echo "-----"
+  echo "repo: $REPO"
+  echo "asset: $INPUT_FILE"
+  echo "target: $TARGET"
+  echo "version: $INPUT_VERSION"
+  exit 1
+fi
+
 ASSETS=$(echo $RELEASE_DATA |  jq --raw-output ".assets | map(select(.name | match(\"${INPUT_FILE}\")))[] |[ .id, .name ] | @csv" )
 TAG_VERSION=$(echo $RELEASE_DATA | jq -r ".tag_name" | sed -e "s/^v//" | sed -e "s/^v.//")
 echo "::set-output name=version::$TAG_VERSION"
 
 if [[ -z "$ASSETS" ]]; then
-  echo "Could not find asset id(s)"
-  exit 1
+  echo "[!] Warning: No assets were found"
+  echo "Release data: $RELEASE_DATA"
+  echo "-----"
+  echo "repo: $REPO"
+  echo "asset: $INPUT_FILE"
+  echo "path: $INPUT_PATH"
+  echo "version: $INPUT_VERSION"
+  exit 2
 fi
 
 mkdir -p $INPUT_PATH
